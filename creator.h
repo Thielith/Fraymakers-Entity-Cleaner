@@ -26,7 +26,9 @@ class entityDataCreator {
 		Json::Value createSymbolDataFromType(symbol*);
 
 		Json::Value createPaletteMap(entityData*);
-		Json::Value createObject(entityData*);
+		Json::Value createPlugins(entityData*);
+		Json::Value createPluginMetadata(entityData*);
+		Json::Value createPluginMetadataFromType(pluginMetadataEntry*);
 		Json::Value createTags(entityData*);
 	private:
 		enumTranslate translator;

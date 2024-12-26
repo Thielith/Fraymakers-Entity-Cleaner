@@ -56,8 +56,8 @@ int main(int argc, char* argv[]){
 	output["keyframes"] = creator.createKeyframes(data);
 	output["layers"] = creator.createLayers(data);
 	output["paletteMap"] = creator.createPaletteMap(data);
-	output["pluginMetadata"]["com.fraymakers.FraymakersMetadata"] = creator.createObject(data);
-	output["plugins"][0] = "com.fraymakers.FraymakersMetadata";
+	output["pluginMetadata"] = creator.createPluginMetadata(data);
+	output["plugins"] = creator.createPlugins(data);
 	output["symbols"] = creator.createSymbols(data);
 	output["tags"] = creator.createTags(data);
 	output["terrains"] = Json::arrayValue;

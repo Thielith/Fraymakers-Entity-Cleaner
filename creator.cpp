@@ -1,4 +1,5 @@
 #include "creator.h"
+#include <fraymakers-entity-data-extractor/struct-definitions.h>
 
 Json::Value entityDataCreator::createAnimations(entityData* data){
 	Json::Value animations(Json::arrayValue);
@@ -253,11 +254,54 @@ Json::Value entityDataCreator::createPaletteMap(entityData* data){
 	return output;
 }
 
-Json::Value entityDataCreator::createObject(entityData* data){
-	Json::Value output;
-	output["objectType"] = translator.toString(data->objectType);
-	output["version"] = data->objectVersion;
-	return output;
+Json::Value entityDataCreator::createPlugins(entityData* data){
+	Json::Value plugins(Json::arrayValue);
+	for(std::string plugin : *data->plugins){ 
+		plugins.append(plugin);
+	}
+
+	return plugins;
+}
+
+Json::Value entityDataCreator::createPluginMetadata(entityData* data){
+	Json::Value pluginMetadataOutput(Json::arrayValue);
+
+	std::list<std::string> copyOfPlugins(*data->plugins);
+	std::list<pluginMetadataEntry*> copyOfPluginMetadata(*data->pluginMetadata);
+
+	while(!copyOfPlugins.empty()){
+		std::string plugin = copyOfPlugins.front();
+		pluginMetadataEntry* entry = copyOfPluginMetadata.front();
+		Json::Value metadataEntry;
+
+		Json::Value restOfSections = createPluginMetadataFromType(entry);
+		for(std::string name : restOfSections.getMemberNames()){
+			metadataEntry[name] = restOfSections[name];
+		}
+
+		if(!(metadataEntry == Json::Value::null))
+			pluginMetadataOutput.append(metadataEntry);
+
+		copyOfPlugins.pop_front();
+		if(!copyOfPluginMetadata.empty()) copyOfPluginMetadata.pop_front();
+	}
+
+	return pluginMetadataOutput;
+}
+Json::Value entityDataCreator::createPluginMetadataFromType(pluginMetadataEntry* data){
+	if(pluginMetadataFraymakersObject* object = dynamic_cast<pluginMetadataFraymakersObject*>(data)){
+		Json::Value output;
+		output["objectType"] = translator.toString(object->objectType);
+		output["version"] = object->version;
+		return output;
+	}
+	else if(pluginMetadataFraymakersMenu* menu = dynamic_cast<pluginMetadataFraymakersMenu*>(data)){
+		Json::Value output;
+		output["spritesheetGroup"] = menu->spritesheetGroup;
+		output["version"] = menu->version;
+		return output;
+	}
+	return Json::Value(Json::objectValue);
 }
 
 
