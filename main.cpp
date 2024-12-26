@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
 			fileDefined = true;
 
 			string path(argv[i+1]);
-			filePathAndName = path;
+			filePathAndName.assign(path);
 			i++;
 		}else if(!outputPathDefined && (!argument.compare("--output") || !argument.compare("-o"))){
 			outputPathDefined = true;
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
 	}
 
 	entityDataExtractor extractor;
-	entityData* data = extractor.extractEntityData(filePathAndName);
+	entityData* data = extractor.extractEntityData(filePathAndName.string());
 
 	entityDataCreator creator;
 	Json::Value output;
@@ -65,10 +65,10 @@ int main(int argc, char* argv[]){
 	output["version"] = data->version;
 	// creator.printData(output, "symbols");
 
-	string newFileName = filePathAndName.stem().concat("_cleaned");
-	newFileName.append(filePathAndName.extension());
+	string newFileName = filePathAndName.stem().concat("_cleaned").string();
+	newFileName.append(filePathAndName.extension().string());
 	filesystem::path outputFileAndPath = filePathAndName;
-	string outputFile = outputFileAndPath.filename();
+	string outputFile = outputFileAndPath.filename().string();
 	outputFileAndPath.replace_filename(newFileName);
 
 	Json::StreamWriterBuilder settings;

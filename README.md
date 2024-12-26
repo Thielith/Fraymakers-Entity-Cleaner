@@ -17,8 +17,10 @@ The program prints this information with `-h` if you ever forget.
 
 ### Linux
 1. Download source files.
+    - If you want to make Windows executables, also install [mingw-w64-jsoncpp](https://aur.archlinux.org/packages/mingw-w64-jsoncpp). If you don't know how, just use `yay`
 2. Run the included makefile.
     - Note:  It assumes you followed the instructions from the [Entity Extractor](https://github.com/Thielith/Fraymakers-Entity-Data-Extractor) library page and put the libraries and header stuff in `/usr/local/lib` and `/usr/local/include` respectivley.  If you didn't, then modify the paths in the `LOOK_HERE_TOO` makefile variable.
+    - To make Windows executables, run `make windows`
 
 ### Windows (TBD)
 
