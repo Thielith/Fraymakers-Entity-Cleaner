@@ -10,6 +10,9 @@ The program prints this information with `-h` if you ever forget.
 
 ## Libraries Used
 - [Entity Extractor](https://github.com/Thielith/Fraymakers-Entity-Data-Extractor): For extracting the data from the .entity files
+  - [jsoncpp](https://github.com/open-source-parsers/jsoncpp): For parsing the .entity files.
+  - [mingw-w64-jsoncpp](https://aur.archlinux.org/packages/mingw-w64-jsoncpp): For compiling the Windows executable version of the program.
+
 
 ## Compiling the Stuff in the Repository
 1. Follow the install instructions for the used libraries.
