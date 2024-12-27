@@ -24,8 +24,6 @@ Json::Value entityDataCreator::createAnimations(entityData* data){
 Json::Value entityDataCreator::createLayers(entityData* data){
 	Json::Value layers(Json::arrayValue);
 	for(layer* layerData : *data->layers){
-		if(isUsed(layerData->id, data->animations)) continue;
-
 		Json::Value layer;
 		layer["$id"] = layerData->id;
 		layer["hidden"] = layerData->hidden;
@@ -48,16 +46,6 @@ Json::Value entityDataCreator::createLayers(entityData* data){
 	}
 
 	return layers;
-}
-bool entityDataCreator::isUsed(std::string id, std::list<animation>* animations){
-	for(animation animation : *animations){
-		for(std::string layerID : animation.layerIDs){
-			if(!layerID.compare(id)){
-				return false;
-			}
-		}
-	}
-	return true;
 }
 Json::Value entityDataCreator::createLayerDataFromType(layer* data){
 	if(layerScript* script = dynamic_cast<layerScript*>(data)){
@@ -93,8 +81,6 @@ Json::Value entityDataCreator::createLayerDataFromType(layer* data){
 Json::Value entityDataCreator::createKeyframes(entityData* data){
 	Json::Value keyframes(Json::arrayValue);
 	for(keyframe* keyframeData : *data->keyframes){
-		if(isUsed(keyframeData->id, data->layers)) continue;
-
 		Json::Value keyframe;
 		keyframe["$id"] = keyframeData->id;
 		keyframe["length"] = keyframeData->length;
@@ -109,16 +95,6 @@ Json::Value entityDataCreator::createKeyframes(entityData* data){
 	}
 
 	return keyframes;
-}
-bool entityDataCreator::isUsed(std::string id, std::list<layer*>* layers){
-	for(layer* layer : *layers){
-		for(std::string keyframeID : layer->keyframeIDs){
-			if(!keyframeID.compare(id)){
-				return false;
-			}
-		}
-	}
-	return true;
 }
 Json::Value entityDataCreator::createKeyframeDataFromType(keyframe* data){
 	if(keyframeScript* script = dynamic_cast<keyframeScript*>(data)){
@@ -145,8 +121,6 @@ Json::Value entityDataCreator::createKeyframeDataFromType(keyframe* data){
 Json::Value entityDataCreator::createSymbols(entityData* data){
 	Json::Value symbols(Json::arrayValue);
 	for(symbol* symbolData : *data->symbols){
-		if(isUsed(symbolData->id, data->keyframes)) continue;
-
 		Json::Value symbol;
 		symbol["$id"] = symbolData->id;
 		symbol["alpha"] = 
@@ -164,17 +138,6 @@ Json::Value entityDataCreator::createSymbols(entityData* data){
 	}
 
 	return symbols;
-}
-bool entityDataCreator::isUsed(std::string id, std::list<keyframe*>* keyframes){
-	for(keyframe* keyframe : *keyframes){
-		keyframeAnimated* animated = dynamic_cast<keyframeAnimated*>(keyframe);
-		if(!animated) continue;
-
-		if(!(animated->symbolID).compare(id)){
-			return false;
-		}
-	}
-	return true;
 }
 Json::Value entityDataCreator::createSymbolDataFromType(symbol* data){
 	if(symbolImage* image = dynamic_cast<symbolImage*>(data)){
@@ -262,7 +225,6 @@ Json::Value entityDataCreator::createPlugins(entityData* data){
 
 	return plugins;
 }
-
 Json::Value entityDataCreator::createPluginMetadata(entityData* data){
 	Json::Value pluginMetadataOutput(Json::arrayValue);
 
@@ -276,7 +238,7 @@ Json::Value entityDataCreator::createPluginMetadata(entityData* data){
 
 		Json::Value restOfSections = createPluginMetadataFromType(entry);
 		for(std::string name : restOfSections.getMemberNames()){
-			metadataEntry[name] = restOfSections[name];
+			metadataEntry[plugin][name] = restOfSections[plugin][name];
 		}
 
 		if(!(metadataEntry == Json::Value::null))

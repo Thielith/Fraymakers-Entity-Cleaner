@@ -1,6 +1,19 @@
 #include "main.h"
+#include <fraymakers-entity-data-extractor/struct-definitions.h>
 
 using namespace std;
+
+void printHelpMessage(){
+	cout << "Usage:  program -f [file] [options]\n"
+		 << endl;
+
+	cout << "Options:\n"
+		 << setw(30) << left << "-h:" << "Prints program usage" << endl
+		 << setw(30) << left << "-f, --file [path]" << "Path to .entity file" << endl
+		 << setw(30) << left << "-o, --output [path]" << "Outputs cleaned .entity file to [path]" << endl
+
+		 << endl;
+}
 
 int main(int argc, char* argv[]){
 	if(argc < 2){
@@ -44,15 +57,20 @@ int main(int argc, char* argv[]){
 		return -1;
 	}
 
+	cout << "Extracting...\n";
 	entityDataExtractor extractor;
 	entityData* data = extractor.extractEntityData(filePathAndName.string());
 
+	cout << "Cleaning...\n";
+	clean(data);
+
+	cout << "Assembling...\n";
 	entityDataCreator creator;
 	Json::Value output;
 	output["animations"] = creator.createAnimations(data);
 	output["export"] = data->shouldExport;
-	output["guid"] = data->guid;	
-	output["id"] = data->id;	
+	output["guid"] = data->guid;
+	output["id"] = data->id;
 	output["keyframes"] = creator.createKeyframes(data);
 	output["layers"] = creator.createLayers(data);
 	output["paletteMap"] = creator.createPaletteMap(data);
@@ -65,31 +83,71 @@ int main(int argc, char* argv[]){
 	output["version"] = data->version;
 	// creator.printData(output, "symbols");
 
+	cout << "Creating...";
 	string newFileName = filePathAndName.stem().concat("_cleaned").string();
 	newFileName.append(filePathAndName.extension().string());
 	filesystem::path outputFileAndPath = filePathAndName;
 	string outputFile = outputFileAndPath.filename().string();
 	outputFileAndPath.replace_filename(newFileName);
-
-	Json::StreamWriterBuilder settings;
-	settings["indentation"] = "  ";
-	Json::StreamWriter* writer(settings.newStreamWriter());
 	
 	ofstream fileOutput;
 	if(outputPathDefined)	fileOutput.open(outputPathUser + newFileName);
 	else 					fileOutput.open(outputFileAndPath);
 	
-	writer->write(output, &fileOutput);
+	Json::StyledWriter writer;
+	fileOutput << writer.write(output);
+	fileOutput.close();
 }
 
-void printHelpMessage(){
-	cout << "Usage:  program -f [file] [options]\n"
-		 << endl;
+void clean(entityData* data){
+	list<layer*> copyOfLayers(*data->layers);
+	for(layer* layerData : copyOfLayers){
+		if(!isUsed(layerData->id, *data->animations)){
+			(*data->layers).remove(layerData);
+		}
+	}
 
-	cout << "Options:\n"
-		 << setw(30) << left << "-h:" << "Prints program usage" << endl
-		 << setw(30) << left << "-f, --file [path]" << "Path to .entity file" << endl
-		 << setw(30) << left << "-o, --output [path]" << "Outputs cleaned .entity file to [path]" << endl
+	list<keyframe*> copyOfKeyframes(*data->keyframes);
+	for(keyframe* keyframeData : copyOfKeyframes){
+		if(!isUsed(keyframeData->id, *data->layers))
+			data->keyframes->remove(keyframeData);
+	}
 
-		 << endl;
+	list<symbol*> copyOfSymbols(*data->symbols);
+	for(symbol* symbolData : copyOfSymbols){
+		if(!isUsed(symbolData->id, *data->keyframes))
+			data->symbols->remove(symbolData);
+	}
+}
+
+bool isUsed(string targetLayerID, list<animation> animations){
+	for(animation animation : animations){
+		for(std::string layerID : animation.layerIDs){
+			if(!layerID.compare(targetLayerID)){
+				return true;
+			}
+		}
+	}
+	return false;
+}
+bool isUsed(string targetKeyframeID, list<layer*> layers){
+	for(layer* layer : layers){
+		for(std::string keyframeID : layer->keyframeIDs){
+			if(!keyframeID.compare(targetKeyframeID)){
+				return true;
+			}
+		}
+	}
+	return false;
+}
+bool isUsed(string symbolID, list<keyframe*> keyframes){
+	for(keyframe* keyframe : keyframes){
+		keyframeAnimated* animated = dynamic_cast<keyframeAnimated*>(keyframe);
+		if(!animated) continue;
+
+		if(!(animated->symbolID).compare(symbolID)){
+			return true;
+		}
+	}
+	return false;
 }

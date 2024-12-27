@@ -14,15 +14,12 @@ class entityDataCreator {
 		Json::Value createAnimations(entityData*);
 
 		Json::Value createLayers(entityData*);
-		bool isUsed(std::string, std::list<animation>*);
 		Json::Value createLayerDataFromType(layer*);
 
 		Json::Value createKeyframes(entityData*);
-		bool isUsed(std::string, std::list<layer*>*);
 		Json::Value createKeyframeDataFromType(keyframe*);
 
 		Json::Value createSymbols(entityData*);
-		bool isUsed(std::string, std::list<keyframe*>*);
 		Json::Value createSymbolDataFromType(symbol*);
 
 		Json::Value createPaletteMap(entityData*);
